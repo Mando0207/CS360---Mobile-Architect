@@ -1,0 +1,64 @@
+<TextView
+    android:id="@+id/sensorValueText"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Sensor data assignment "
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintLeft_toLeftOf="parent"
+    app:layout_constraintRight_toRightOf="parent"
+    app:layout_constraintTop_toTopOf="parent" />
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    private SensorManager mSensorManager;
+    private Sensor mAccelerometer;
+    private TextView mSensorValueText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        mSensorValueText = findViewById(R.id.sensorValueText);
+
+        // Getetter for an instance of the SensorManager
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        // Getter for the accelerometer sensor
+        if (mSensorManager != null) {
+            mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Register the listener for the accelerometer
+        if (mAccelerometer != null) {
+            mSensorManager.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Unregister the listener to prevent battery drain
+        mSensorManager.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        // This method is called when sensor data is available
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            float x = event.values[0];
+            float y = event.values[1];
+            float z = event.values[2];
+            mSensorValueText.setText(String.format("X: %.2f\nY: %.2f\nZ: %.2f", x, y, z));
+        }
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Do nothing
+    }
+}
